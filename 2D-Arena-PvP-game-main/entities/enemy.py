@@ -46,7 +46,7 @@ _frames_cache = {}
 def get_huah_sound():
     global huah_sound
     if huah_sound is None:
-        huah_sound = load_sound("assets/sounds/huah.mp3")
+        huah_sound = load_sound("assets/sounds/huah.wav", 0.5)
     return huah_sound
 
 

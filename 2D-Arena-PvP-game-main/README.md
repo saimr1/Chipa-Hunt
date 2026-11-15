@@ -56,10 +56,16 @@ Scores are saved locally in a `highscores.db` file, which is created automatical
 
 ## Sound
 
-Most sound effects and the menu music are not included in this repo, so the
-   game runs mostly silent. To add your own, place `huah.mp3` (enemy death),
-   `eek.mp3` (player hit), `death.mp3` (dying sound) and `lobby.mp3` (lobby music)
-   in `assets/sounds/`.
+The `assets/sounds/` folder ships with synthesized effects:
+
+- `punjabi_pew1.wav` / `punjabi_pew2.wav` - alternating dhol-style shots
+- `eek.wav` - player hit
+- `huah.wav` - enemy death
+- `amongus.wav` - player death sting
+- `tur_gaye_yar_loud.wav` - death meme, boosted and limited for full volume
+- `lobby.mp3` - optional lobby music
+
+Missing files fall back to silence, so the game still runs without them.
 
 ## Project structure
 

@@ -1,4 +1,4 @@
-import pygame, time, random
+import pygame, time, random, math
 from entities.player import Player, PLAYER_HEIGHT, PLAYER_WIDTH, BOUNDS_X, BOUNDS_Y
 from entities.GameObjects import GameObjects
 from entities.projectile import shoot, check_collisions
@@ -42,6 +42,7 @@ class Game:
         self.shake_offset = (0, 0)
         self.cursor_scale = 1
         self.score = 0
+        self.invulnerable_until = 0
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Arena PvP")
         
@@ -71,12 +72,18 @@ class Game:
         pygame.mouse.set_visible(False)
  
         self.game_over = False
+        self.death_screen_done = False
         self.running = True
         self.player_name = "Player"  # default, overwritten by name entry
 
+        # Fonts for the death meme screen
+        self.big_font = pygame.font.Font("assets/images/font.otf", 84)
+        self.medium_font = pygame.font.Font("assets/images/font.otf", 40)
+
         # Sound effects
-        self.death_sound = load_sound("assets/sounds/death.mp3")
-        self.eek_sound = load_sound("assets/sounds/eek.mp3")
+        self.death_sound = load_sound("assets/sounds/amongus.wav", 0.4)
+        self.meme_sound = load_sound("assets/sounds/tur_gaye_yar_loud.wav", 1.0)
+        self.eek_sound = load_sound("assets/sounds/eek.wav", 0.6)
 
         # Initialise database
         init_db()
@@ -107,6 +114,12 @@ class Game:
                     self.restart_game()
                     menu = menu_state(self)
                     menu.enter_state()
+
+                # Skip the death meme screen and show the score
+                if self.game_over and not self.death_screen_done:
+                    if event.key in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_ESCAPE):
+                        self.death_screen_done = True
+                        self.meme_sound.stop()
  
                 # Toggle pause (only when actually playing)
                 if not self.game_over and len(self.state_stack) == 0:
@@ -121,7 +134,22 @@ class Game:
     def display_score(self):
         score_text = TEXT_FONT.render(f'Score: {self.score}', True, (0, 0, 0))
         self.screen.blit(score_text, (score_text.get_width() // 2, 25))
- 
+
+    def knockback(self, enemy):
+        ex, ey = enemy.get_center()
+        px, py = self.player1.rect.center
+        dx = px - ex
+        dy = py - ey
+        distance = math.hypot(dx, dy)
+        if distance == 0:
+            dx, dy, distance = 1, 0, 1
+
+        push = 70
+        self.player1.rect.x += int(dx / distance * push)
+        self.player1.rect.y += int(dy / distance * push)
+        self.player1.rect.x = max(BOUNDS_X[0], min(self.player1.rect.x, BOUNDS_X[1] - PLAYER_WIDTH))
+        self.player1.rect.y = max(BOUNDS_Y[0], min(self.player1.rect.y, BOUNDS_Y[1] - PLAYER_HEIGHT))
+
     def restart_game(self):
         # Reset player
         self.player1.health = self.player1.max_health
@@ -134,12 +162,19 @@ class Game:
         self.bullets.clear()
         particles.clear()
         self.death_sound.stop()
+        self.meme_sound.stop()
         pygame.mixer.music.set_volume(0.1)
 
         # Reset game over flag
         pygame.mouse.set_visible(False)
         self.game_over = False
+        self.death_screen_done = False
         self.score = 0
+        self.shake_gen = None
+        self.shake_offset = (0, 0)
+        self.last_shot_time = 0
+        self.cursor_scale = 1
+        self.invulnerable_until = pygame.time.get_ticks() + 1000
    
 
  
@@ -180,11 +215,13 @@ class Game:
                 self.bullets.remove(bullet)
         
  
+        now = pygame.time.get_ticks()
         for e in self.enemies[:]:
-            if check_collisions(self.player1, e):
-                self.player1.health -= 1
-                self.player1.health = max(0, self.player1.health)
+            if now >= self.invulnerable_until and check_collisions(self.player1, e):
+                self.player1.health = max(0, self.player1.health - 1)
                 self.eek_sound.play()
+                self.invulnerable_until = now + 800
+                self.knockback(e)
                 self.player1.check_death()
                 e.destroy(self.enemies, play_sound=False)
                 continue
@@ -195,9 +232,7 @@ class Game:
                         self.bullets.remove(b)
                     if e.health <= 0:
                         self.score += 1
- 
-                    if e.health <=0:
-                        self.shake_gen = screen_shake(5,20)
+                        self.shake_gen = screen_shake(5, 20)
  
         if self.shake_gen:
             try:
@@ -209,8 +244,11 @@ class Game:
         self.player1.check_death()
         if not self.player1.alive:
             self.game_over = True
+            self.death_screen_done = False
             save_score(self.player_name, self.score)
             self.death_sound.play()
+            # Loop the meme until the player presses a key, then show the score.
+            self.meme_sound.play(loops=-1, fade_ms=400)
             pygame.mixer.music.set_volume(0)
  
         update_particles()
@@ -237,7 +275,10 @@ class Game:
  
             for bullet in self.bullets:
                 bullet.draw(self.screen, ox, oy)
-            self.player1.draw(self.screen, ox, oy)
+
+            now = pygame.time.get_ticks()
+            if now >= self.invulnerable_until or (now // 100) % 2 == 0:
+                self.player1.draw(self.screen, ox, oy)
  
             self.player1.display_ui(self.screen)
             self.display_score()
@@ -251,18 +292,32 @@ class Game:
                 self.state_stack[-1].render(self.screen)
  
         else:
-            self.screen.fill((20, 20, 20))
+            self.screen.fill((0, 0, 0))
             pygame.mouse.set_visible(True)
+
+            if not self.death_screen_done:
+                # Black meme screen, stays up while the death track plays.
+                line1 = self.big_font.render("TUR GAYE YAR...", True, (255, 255, 255))
+                line2 = self.medium_font.render("muhabbatan walay...", True, (255, 130, 130))
+                line3 = self.medium_font.render("skill issue", True, (150, 150, 150))
+                skip_text = TEXT_FONT.render("press [SPACE] to continue", True, (110, 110, 110))
+
+                self.screen.blit(line1, line1.get_rect(center=(self.width // 2, self.height // 2 - 60)))
+                self.screen.blit(line2, line2.get_rect(center=(self.width // 2, self.height // 2 + 20)))
+                self.screen.blit(line3, line3.get_rect(center=(self.width // 2, self.height // 2 + 80)))
+                self.screen.blit(skip_text, skip_text.get_rect(center=(self.width // 2, self.height - 60)))
+            else:
+                game_over_text = TEXT_FONT.render("Game Over!", True, (255, 255, 255))
+                sus_text = TEXT_FONT.render("you were ejected (SUS)", True, (170, 170, 170))
+                score_text = TEXT_FONT.render(f"Score: {self.score}", True, (255, 255, 255))
+                restart_text = TEXT_FONT.render("Press [R] to Restart", True, (255, 255, 255))
+                menu_text = TEXT_FONT.render("Press [M] for Main Menu", True, (255, 255, 255))
  
-            game_over_text = TEXT_FONT.render("Game Over!", True, (255, 255, 255))
-            score_text = TEXT_FONT.render(f"Score: {self.score}", True, (255, 255, 255))
-            restart_text = TEXT_FONT.render("Press [R] to Restart", True, (255, 255, 255))
-            menu_text = TEXT_FONT.render("Press [M] for Main Menu", True, (255, 255, 255))
- 
-            self.screen.blit(game_over_text, game_over_text.get_rect(center=(self.width // 2, self.height // 2 - 80)))
-            self.screen.blit(score_text, score_text.get_rect(center=(self.width // 2, self.height // 2 - 20)))
-            self.screen.blit(restart_text, restart_text.get_rect(center=(self.width // 2, self.height // 2 + 40)))
-            self.screen.blit(menu_text, menu_text.get_rect(center=(self.width // 2, self.height // 2 + 100)))
+                self.screen.blit(game_over_text, game_over_text.get_rect(center=(self.width // 2, self.height // 2 - 80)))
+                self.screen.blit(sus_text, sus_text.get_rect(center=(self.width // 2, self.height // 2 - 130)))
+                self.screen.blit(score_text, score_text.get_rect(center=(self.width // 2, self.height // 2 - 20)))
+                self.screen.blit(restart_text, restart_text.get_rect(center=(self.width // 2, self.height // 2 + 40)))
+                self.screen.blit(menu_text, menu_text.get_rect(center=(self.width // 2, self.height // 2 + 100)))
  
         pygame.display.update()
  

@@ -1,19 +1,23 @@
 import pygame
 import math
+import random
 from entities.GameObjects import GameObjects
+from game.audio import load_sound
 
 # ---------- Shooting function ----------
-gun_sound = None
+pew_sounds = None
 
-def get_gun_sound():
-    global gun_sound
-    if gun_sound is None:
-        gun_sound = pygame.mixer.Sound("assets/sounds/gun.mp3")
-        gun_sound.set_volume(0.4)
-    return gun_sound
+def get_pew_sounds():
+    global pew_sounds
+    if pew_sounds is None:
+        pew_sounds = [
+            load_sound("assets/sounds/punjabi_pew1.wav", 1.0),
+            load_sound("assets/sounds/punjabi_pew2.wav", 1.0),
+        ]
+    return pew_sounds
 
 def shoot(player, target_pos, bullets_list):
-    get_gun_sound().play()
+    random.choice(get_pew_sounds()).play()
 
 
     bullet_img = pygame.image.load("assets/images/bullet.png").convert_alpha() 
