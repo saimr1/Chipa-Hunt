@@ -12,13 +12,13 @@ class leaderboard_state(state):
 
     def enter_state(self):
         super().enter_state()
-        self.scores = get_top_scores(10)  # fetch fresh scores every time it opens
+        self.scores = get_top_scores(10)
 
     def update(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_BACKSPACE:
-                    self.exit_state()  # return to menu
+                    self.exit_state()
 
     def render(self, display):
         display.fill((20, 20, 20))
@@ -30,7 +30,6 @@ class leaderboard_state(state):
             empty = self.font_medium.render("No scores yet!", True, (150, 150, 150))
             display.blit(empty, empty.get_rect(center=(display.get_width() // 2, display.get_height() // 2)))
         else:
-            # Column headers
             headers = self.font_small.render("#       Name                Score", True, (180, 180, 180))
             display.blit(headers, headers.get_rect(center=(display.get_width() // 2, 150)))
             pygame.draw.line(display, (80, 80, 80),
@@ -38,13 +37,12 @@ class leaderboard_state(state):
                              (display.get_width() // 2 + 300, 170), 1)
 
             for i, (name, score) in enumerate(self.scores):
-                # Highlight top 3
                 if i == 0:
-                    colour = (255, 215, 0)   # gold
+                    colour = (255, 215, 0)
                 elif i == 1:
-                    colour = (192, 192, 192) # silver
+                    colour = (192, 192, 192)
                 elif i == 2:
-                    colour = (205, 127, 50)  # bronze
+                    colour = (205, 127, 50)
                 else:
                     colour = (255, 255, 255)
 

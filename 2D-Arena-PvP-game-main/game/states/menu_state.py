@@ -25,12 +25,12 @@ class menu_state(state):
                 pygame.mixer.music.load("assets/sounds/lobby.mp3")
                 pygame.mixer.music.play(-1)
             except (FileNotFoundError, pygame.error):
-                pass  # no music file, run silently
+                pass
         pygame.mixer.music.set_volume(0.5)
 
     def render(self, display):
         display.fill((20, 20, 20))
-        title = self.font_large.render("Arena PvP", True, (255, 255, 255))
+        title = self.font_large.render("Chippa Hunter", True, (255, 255, 255))
         prompt = self.font_small.render("Press [Enter] or [Space] to Play", True, (200, 200, 200))
         leaderboard = self.font_small.render("Press [L] for Leaderboard", True, (200, 200, 200))
         display.blit(title, title.get_rect(center=(display.get_width() // 2, display.get_height() // 2 - 80)))

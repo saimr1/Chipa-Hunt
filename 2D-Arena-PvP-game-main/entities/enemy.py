@@ -12,9 +12,6 @@ ENEMY_SPEED = 5
 SHEET_COLS = 4
 SHEET_ROWS = 2
 
-# enemy-Sheet.png, left to right, top to bottom:
-# down, down-right, right, up-right
-# up,   up-left,    left,  down-left
 SHEET_DIRECTIONS = (
     "down",
     "down-right",
@@ -26,7 +23,6 @@ SHEET_DIRECTIONS = (
     "down-left",
 )
 
-# 0 degrees points right, 90 points down. These are the eight 45 degree sectors.
 SECTOR_DIRECTIONS = (
     "right",
     "down-right",
@@ -180,7 +176,6 @@ class Enemy:
 
 
 def enemy_spawner(player, enemy_list):
-    """Generator that spawns an enemy every 60 frames"""
     while True:
         for _ in range(60):
             yield

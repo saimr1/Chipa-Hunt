@@ -28,4 +28,4 @@ def get_top_scores(limit=10):
     cursor.execute("SELECT name, score FROM highscores ORDER BY score DESC LIMIT ?", (limit,))
     scores = cursor.fetchall()
     conn.close()
-    return scores  # list of (name, score) tuples
+    return scores

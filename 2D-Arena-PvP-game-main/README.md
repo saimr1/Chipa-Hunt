@@ -1,4 +1,4 @@
-# Arena PvP
+# Chippa Hunter
 
 A top-down arena shooter built with Python and [pygame](https://www.pygame.org/). Survive waves of enemies that chase you around the arena, shoot them down, and try to get your name at the top of the local leaderboard.
 
@@ -7,12 +7,14 @@ A top-down arena shooter built with Python and [pygame](https://www.pygame.org/)
 ## Features
 
 - Top-down movement and mouse-aimed shooting
+- Chappals fly and ricochet off the arena walls up to two times
+- Bouncing health potions spawn and restore one heart
 - Enemies spawn continuously and chase the player
 - Three lives, shown as hearts in the top-right corner
 - Screen shake and particle effects when enemies are destroyed
 - Name entry at startup, so scores are saved under your name
 - Local leaderboard stored in a SQLite database (top 10 scores)
-- Pause menu and game over screen with quick restart
+- Pause menu and a Chippa Sahab meme death screen with quick restart
 
 ## Requirements
 
@@ -60,6 +62,7 @@ The `assets/sounds/` folder ships with synthesized effects:
 
 - `punjabi_pew1.wav` / `punjabi_pew2.wav` - alternating dhol-style shots
 - `eek.wav` - player hit
+- `potion.wav` - potion pickup chime
 - `huah.wav` - enemy death
 - `amongus.wav` - player death sting
 - `tur_gaye_yar_loud.wav` - death meme, boosted and limited for full volume
