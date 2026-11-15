@@ -13,8 +13,8 @@ def get_pew_sounds():
     global pew_sounds
     if pew_sounds is None:
         pew_sounds = [
-            load_sound("assets/sounds/punjabi_pew1.wav", 1.0),
-            load_sound("assets/sounds/punjabi_pew2.wav", 1.0),
+            load_sound("assets/sounds/punjabi_pew1.ogg", 1.0),
+            load_sound("assets/sounds/punjabi_pew2.ogg", 1.0),
         ]
     return pew_sounds
 
@@ -23,10 +23,10 @@ def get_vocal_sounds():
     global vocal_sounds
     if vocal_sounds is None:
         vocal_sounds = [
-            load_sound("assets/sounds/vocal_hah.wav", 1.0),
-            load_sound("assets/sounds/vocal_ooh.wav", 1.0),
-            load_sound("assets/sounds/vocal_hey.wav", 1.0),
-            load_sound("assets/sounds/vocal_haa.wav", 1.0),
+            load_sound("assets/sounds/vocal_hah.ogg", 1.0),
+            load_sound("assets/sounds/vocal_ooh.ogg", 1.0),
+            load_sound("assets/sounds/vocal_hey.ogg", 1.0),
+            load_sound("assets/sounds/vocal_haa.ogg", 1.0),
         ]
     return vocal_sounds
 
@@ -78,3 +78,4 @@ def check_collisions(obj1, obj2):
     if x1 + w1/2 > x2 - w2/2 and x1 - w1/2 < x2 + w2/2:
         return y1 + h1/2 > y2 - h2/2 and y1 - h1/2 < y2 + h2/2
     return False
+

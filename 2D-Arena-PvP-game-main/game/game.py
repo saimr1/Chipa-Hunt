@@ -74,11 +74,11 @@ class Game:
         self.big_font = pygame.font.Font("assets/images/font.otf", 84)
         self.medium_font = pygame.font.Font("assets/images/font.otf", 40)
 
-        self.death_sound = load_sound("assets/sounds/amongus.wav", 0.4)
-        self.meme_sound = load_sound("assets/sounds/tur_gaye_yar_loud.wav", 1.0)
-        self.eek_sound = load_sound("assets/sounds/eek.wav", 0.6)
-        self.bounce_sound = load_sound("assets/sounds/bounce.wav", 0.75)
-        self.potion_sound = load_sound("assets/sounds/potion.wav", 0.75)
+        self.death_sound = load_sound("assets/sounds/amongus.ogg", 0.4)
+        self.meme_sound = load_sound("assets/sounds/tur_gaye_yar_loud.ogg", 1.0)
+        self.eek_sound = load_sound("assets/sounds/eek.ogg", 0.6)
+        self.bounce_sound = load_sound("assets/sounds/bounce.ogg", 0.75)
+        self.potion_sound = load_sound("assets/sounds/potion.ogg", 0.75)
 
         self.potion_image = pygame.transform.scale(
             pygame.image.load("assets/images/potion.png").convert_alpha(), (40, 40)
@@ -347,6 +347,7 @@ class Game:
             if self.state_stack:
                 self.state_stack[-1].render(self.screen)
  
+        
         else:
             self.screen.fill((0, 0, 0))
             pygame.mouse.set_visible(True)
@@ -369,21 +370,23 @@ class Game:
                 score_text = TEXT_FONT.render(f"Score: {self.score}", True, (255, 255, 255))
                 restart_text = TEXT_FONT.render("Press [R] to Restart", True, (255, 255, 255))
                 menu_text = TEXT_FONT.render("Press [M] for Main Menu", True, (255, 255, 255))
- 
+
                 self.screen.blit(game_over_text, game_over_text.get_rect(center=(self.width // 2, self.height // 2 - 80)))
                 self.screen.blit(sus_text, sus_text.get_rect(center=(self.width // 2, self.height // 2 - 130)))
                 self.screen.blit(score_text, score_text.get_rect(center=(self.width // 2, self.height // 2 - 20)))
                 self.screen.blit(restart_text, restart_text.get_rect(center=(self.width // 2, self.height // 2 + 40)))
                 self.screen.blit(menu_text, menu_text.get_rect(center=(self.width // 2, self.height // 2 + 100)))
- 
+
         pygame.display.update()
- 
- 
-    def run(self):
+
+    async def run(self):
+        import asyncio
+
         while self.running:
             self.clock.tick(60)
             self.handle_events()
             self.update()
             self.draw()
- 
+            await asyncio.sleep(0)
+
         pygame.quit()

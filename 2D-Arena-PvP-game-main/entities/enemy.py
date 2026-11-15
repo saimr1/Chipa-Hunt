@@ -42,7 +42,7 @@ _frames_cache = {}
 def get_huah_sound():
     global huah_sound
     if huah_sound is None:
-        huah_sound = load_sound("assets/sounds/huah.wav", 0.5)
+        huah_sound = load_sound("assets/sounds/huah.ogg", 0.5)
     return huah_sound
 
 
@@ -189,3 +189,4 @@ def enemy_spawner(player, enemy_list):
 
         Enemy(randomX, randomY, ENEMY_WIDTH, ENEMY_HEIGHT,
               "assets/images/enemy-Sheet.png", ENEMY_SPEED, enemy_list)
+
